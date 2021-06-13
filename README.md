@@ -104,8 +104,3 @@ Program uses:
  - Scikit-image
 
 To run a program clone or download a repository and open it in python IDE or start main.py from the command line.
-
-
-
-[![N|Solid](https://cldup.com/dTxpPi9lDf.thumb.png)](https://nodesource.com/products/nsolid)
-
