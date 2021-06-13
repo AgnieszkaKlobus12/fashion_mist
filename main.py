@@ -1,7 +1,7 @@
 import warnings
 
 from matplotlib import pyplot as plt
-from skimage.filters import prewitt_v
+from skimage.filters import prewitt_v, prewitt_h
 
 import mnist_reader
 from content import *
@@ -31,13 +31,13 @@ def load_data():
     return X_train, y_train, X_val, y_val, X_test, y_test
 
 
-def plot_error(error_1, error_2, error_3):
+def plot_error(error_1, error_2):
     plt.figure()
     plt.rcParams['image.cmap'] = 'gray'
     plt.rcParams['image.interpolation'] = 'none'
     plt.style.use(['dark_background'])
-    labels = ["No changes", "Round", "Edges"]
-    data = [error_1, error_2, error_3]
+    labels = ["Round", "Edges"]
+    data = [error_1, error_2]
 
     x_locations = np.array(range(len(data))) + 0.5
     width = 0.5
@@ -80,7 +80,6 @@ def plot_image(i, predictions_array, true_label, img):
     plt.xlabel("{} {:2.0f}% ({})".format(class_names[predicted_label],
                                          100 * np.max(predictions_array),
                                          class_names[true_label]), color=color)
-    plt.show()
 
 
 def plot_value_array(i, predictions_array, true_label):
@@ -97,47 +96,23 @@ def plot_value_array(i, predictions_array, true_label):
 
 
 def run_all():
-    error_1 = run_training(load_data(), "unchanged data")
-    error_2 = run_for_round(load_data())
+    data = load_data()
+    error_1 = run_training(round_values(data), "rounded values")
     new_data = get_edges(load_data())
-    error_3 = run_training(new_data, "edges")
-    plot_error(error_1, error_2, error_3)
+    error_2 = run_training(round_values(new_data), "edges")
+    plot_error(error_1, error_2)
 
 
 def run_training(data, data_print):
-    k_values = range(1, 101, 2)
+    k_values = range(1, 201, 2)
     print(f'\n------------- Model selection: k-NN, {data_print} -------------')
-    print('-------------------- k values: 1, 3, ..., 100 -----------------------')
+    print('-------------------- k values: 1, 3, ..., 200 -----------------------')
     error_best, best_k, errors = model_selection(data[0], data[2], data[3], data[1], k_values)
     print('Best k: {num1} and best classification error: {num2:.4f}'.format(num1=best_k, num2=error_best))
     classification_for_k(k_values, errors)
 
     predictions, error = probabilities_for_k(data[0], data[4], data[1], data[5], best_k)
     print('Error: {num1:.4f} for k: {num2}'.format(num1=error, num2=best_k))
-    show_examples(predictions, data)
-    return error
-
-
-def run_for_round(data):
-    k_values = range(1, 101, 2)
-    print('\n------------- Model selection: k-NN, rounded data -------------')
-    print('-------------------- k values: 1, 3, ..., 100 -----------------------')
-    mn = [3, 2, 1, 0]
-    err_mn = []
-    best_k_t = []
-    for mni in mn:
-        X_test, X_val = round_values(data[0], data[2], mni)
-        error_best, best_k, errors = model_selection(X_test, X_val, data[3], data[1], k_values)
-        err_mn.append(error_best)
-        best_k_t.append(best_k)
-        print('Best k: {num1} and best classification error: {num2:.4f}, Decimal places: {num3}'.format(num1=best_k,
-                                                                                                        num2=error_best,
-                                                                                                        num3=mni))
-        classification_for_k(k_values, errors)
-
-    X_test, X_val = round_values(data[0], data[4], mn[np.argmin(err_mn)])
-    predictions, error = probabilities_for_k(X_test, X_val, data[1], data[5], best_k_t[np.argmin(err_mn)])
-    print('Error: {num1:.4f} for k: {num2}'.format(num1=error, num2=best_k_t[np.argmin(err_mn)]))
     show_examples(predictions, data)
     return error
 
@@ -162,10 +137,11 @@ def get_edges(data):
            list(map(prewitt_v, data[4])), data[5]
 
 
-def round_values(x_test, x_val, mn):
-    x_val = np.around(x_val, mn)
-    x_test = np.around(x_test, mn)
-    return x_test, x_val
+def round_values(data):
+    x_train = np.around(data[0], 0)
+    x_val = np.around(data[2], 0)
+    x_test = np.around(data[4], 0)
+    return x_train, data[1], x_val, data[3], x_test, data[5]
 
 
 if __name__ == "__main__":
