@@ -1,8 +1,8 @@
-# ## Table of content:
-Introduction
-Methods
-Results
-Usage
+# Table of content:
+- Introduction
+- Methods
+- Results
+- Usage
 
 # Introduction
 The task is to create a model that will be able to assign a picture of clothing to the appropriate category.
@@ -56,9 +56,11 @@ Standard classification error is calculated as the number of misclassified objec
 
 Images represented by matrices of values do not require any additional action before comparing them. 
 
-First, as hamming distance counts every slight difference in values, I’d like to try rounding values. After division by 255 (needed for accurate display of images), the values are in range from 0 to 1. However, the implementation of Hamming distance I’ve decided to use requires matrices to contain only zeros and ones. To achieve that, I’m rounding every value. 
+First I need to round values. After division by 255 (needed for accurate display of images), the values are in range from 0 to 1. However, the implementation of Hamming distance I’ve decided to use requires matrices to contain only zeros and ones. To achieve that, I’m rounding every value. 
 
-I’m comparing values from unchanged images to images of edges.
+I've also decided to use skimage to get edges from pictures. Prewitt_v function will find rapid differences in color on image, that suggest edge and change the color accordingly to show the edge. That values I will also round.
+
+I’m comparing model results for unchanged images and images of edges.
 
 # Results
 
